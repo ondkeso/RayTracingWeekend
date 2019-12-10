@@ -1,13 +1,14 @@
 // RayTracingWeekend.cpp : This file contains the 'main' function. Program execution begins and ends there.
 
+#include "float3.h"
 #include <fstream>
 
 int main()
 {
 	std::ofstream cout("output.ppm");
 
-	int nx = 200;
-	int ny = 100;
+	int nx = 300;
+	int ny = 200;
 	cout << "P3\n" << nx << " " << ny << "\n255\n";
 
 	for (int j = ny - 1; j >= 0; j--)
