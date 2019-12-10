@@ -15,13 +15,11 @@ int main()
 	{
 		for (int i = 0; i < nx; i++)
 		{
-			float r = float(i) / float(nx);
-			float g = float(j) / float(ny);
-			float b = 0.2f;
+			float3 color{ float(i) / float(nx), float(j) / float(ny), 0.2f };
 
-			int ir = int(255.99999999f * r);
-			int ig = int(255.99999999f * g);
-			int ib = int(255.99999999f * b);
+			int ir = int(255.9999f * color.r);
+			int ig = int(255.9999f * color.g);
+			int ib = int(255.9999f * color.b);
 
 			cout << ir << " " << ig << " " << ib << "\n";
 		}
