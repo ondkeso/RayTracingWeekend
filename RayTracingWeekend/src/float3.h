@@ -1,15 +1,15 @@
 #include <math.h>
-#include <stdlib.h>
 #include <iostream>
-
-#pragma warning(push)
-#pragma warning(disable : 26495)
 
 class float3 {
 public:
 
 	float3() {}
-	explicit float3(float e0, float e1, float e2) { e[0] = e0; e[1] = e1; e[2] = e2; }
+	explicit float3(float e0, float e1, float e2)
+	: x(e0)
+	, y(e1)
+	, z(e2)
+	{}
 
 	inline const float3& operator+() const { return *this; }
 	inline float3 operator-() const { return float3{ -e[0], -e[1], -e[2] }; }
@@ -161,11 +161,17 @@ inline float dot(const float3& v0, const float3& v1)
 	return v0.x * v1.x + v0.y * v1.y + v0.z * v1.z;
 }
 
+//Mind that this is a left handed coordinate system cross product
 inline float3 cross(const float3& a, const float3& b)
 {
 	return float3{
-		a[1]*b[2] - a[2]*b[1],
-		a[2]*b[0] - a[0]*b[2],
-		a[0]*b[1] - a[1]*b[0]
+		a[2]*b[1] - a[1]*b[2],
+		a[0]*b[2] - a[2]*b[0],
+		a[1]*b[0] - a[0]*b[1]
 	};
+}
+
+inline float3 lerp(const float3& a, const float3& b, float t)
+{
+	return (1.0f - t) * a + t * b;
 }
