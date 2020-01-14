@@ -6,7 +6,7 @@ constexpr float PI2 = 2.0f * PI;
 #include "ray.h"
 #include <fstream>
 
-float3 color(const ray& r)
+float3 colorOfRay(const ray& r)
 {
 	float3 unit_direction = unit_vector(r.direction);
 	float t = 0.5f * (unit_direction.y + 1.0f);
@@ -15,23 +15,31 @@ float3 color(const ray& r)
 
 int main()
 {
-	std::ofstream cout("output.ppm");
+	constexpr int nx = 500;
+	constexpr int ny = 300;
+	constexpr float aspect_ratio = nx / (float)ny;
+	constexpr float3 lower_left_corner(-aspect_ratio * 0.5f, -1.0f / aspect_ratio * 0.5f, 1.0f);
+	constexpr float3 horizontal(aspect_ratio, 0.0f, 0.0f);
+	constexpr float3 vertical(0.0f, 1 / aspect_ratio, 0.0f);
+	constexpr float3 origin(0.0f, 0.0f, 0.0f);
 
-	int nx = 300;
-	int ny = 200;
+	std::ofstream cout("output.ppm");
 	cout << "P3\n" << nx << " " << ny << "\n255\n";
 
 	for (int j = ny - 1; j >= 0; j--)
 	{
 		for (int i = 0; i < nx; i++)
 		{
-			float3 color{ sin(3.0f * PI2 * float(i) / float(nx))* 0.5f + 0.5f, sin(2.0f * PI2 * float(j) / float(ny)) * 0.5f + 0.5f, 0.01f };
+			float u = (float)i / (float)nx;
+			float v = (float)j / (float)nx;
 
-			color.normalize();
+			ray r(origin, lower_left_corner + u * horizontal + v * vertical);
 
-			int ir = int(255.9999f * pow(color.r, 2.0f));
-			int ig = int(255.9999f * pow(color.g, 2.0f));
-			int ib = int(255.9999f * pow(color.b, 2.0f));
+			float3 color = colorOfRay(r);
+
+			int ir = int(255.9999f * color.r);
+			int ig = int(255.9999f * color.g);
+			int ib = int(255.9999f * color.b);
 
 			cout << ir << " " << ig << " " << ib << "\n";
 		}

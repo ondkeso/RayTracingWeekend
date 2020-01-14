@@ -1,11 +1,14 @@
+#pragma once
 #include <math.h>
 #include <iostream>
 
+#pragma warning(push)
+#pragma warning(disable : 26495)
 class float3 {
 public:
 
 	float3() {}
-	explicit float3(float e0, float e1, float e2)
+	constexpr explicit float3(float e0, float e1, float e2)
 	: x(e0)
 	, y(e1)
 	, z(e2)
@@ -36,7 +39,6 @@ public:
 		struct { float r, g, b; };
 	};
 };
-
 #pragma warning(pop)
 
 #pragma region operators
@@ -126,6 +128,11 @@ inline float3 operator/(const float3& v0, const float3& v1)
 }
 
 inline float3 operator*(float f, const float3& v)
+{
+	return float3{ v.x * f, v.y * f, v.z * f };
+}
+
+inline float3 operator*(const float3& v, float f)
 {
 	return float3{ v.x * f, v.y * f, v.z * f };
 }
