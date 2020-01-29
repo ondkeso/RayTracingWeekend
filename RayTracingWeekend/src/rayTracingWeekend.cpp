@@ -1,12 +1,8 @@
-// RayTracingWeekend.cpp : This file contains the 'main' function. Program execution begins and ends there.
-constexpr float PI = 3.14159265358979323846f;
-constexpr float PI2 = 2.0f * PI;
-
 #include "float3.h"
 #include "ray.h"
 #include <fstream>
 
-float hit_sphere(const float3& center, float radius, const ray& r)
+float hitSphere(const float3& center, float radius, const ray& r)
 {
 	float3 center_to_origin = r.origin - center;
 	float a = dot(r.direction, r.direction);
@@ -29,15 +25,15 @@ float3 colorOfRay(const ray& r)
 	//Test sphere
 	{
 		const float3 center{ 0.0f, 0.0f, 1.001f };
-		float hit = hit_sphere(center, 0.5f, r);
+		float hit = hitSphere(center, 0.5f, r);
 		if (hit > 0.0f)
 		{
-			float3 normal = unit_vector(r.position_at(hit) - center);
+			float3 normal = unitVector(r.positionAt(hit) - center);
 			return 0.5f * float3{ normal.x + 1.0f, normal.y + 1.0f, normal.z + 1.0f };
 		}
 	}
 
-	float3 unit_direction = unit_vector(r.direction);
+	float3 unit_direction = unitVector(r.direction);
 	float t = 0.5f * (unit_direction.y + 1.0f);
 	return lerp(float3{ 1.0f, 1.0f, 1.0f }, float3{ 0.5f, 0.7f, 1.0f }, t);
 }

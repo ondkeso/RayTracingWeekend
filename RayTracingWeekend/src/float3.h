@@ -30,7 +30,7 @@ public:
 	inline float3& operator/=(float f);
 
 	inline float length() const;
-	inline float squared_length() const;
+	inline float squaredLength() const;
 	inline void normalize();
 
 	union {
@@ -145,10 +145,10 @@ inline float3 operator/(const float3& v, float f)
 
 inline float float3::length() const
 {
-	return sqrt(squared_length());
+	return sqrt(squaredLength());
 }	
 
-inline float float3::squared_length() const
+inline float float3::squaredLength() const
 {
 	return x * x + y * y + z * z;
 }
@@ -158,7 +158,7 @@ inline void float3::normalize()
 	(*this) /= length();
 }
 
-inline float3 unit_vector(const float3& v)
+inline float3 unitVector(const float3& v)
 {
 	return v / v.length();
 }

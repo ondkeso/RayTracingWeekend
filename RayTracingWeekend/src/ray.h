@@ -10,7 +10,7 @@ public:
 		, direction(direction)
 		{}
 
-	float3 position_at(float t) const { return origin + t * direction; }
+	float3 positionAt(float t) const { return origin + t * direction; }
 
 	float3 origin;
 	float3 direction;
