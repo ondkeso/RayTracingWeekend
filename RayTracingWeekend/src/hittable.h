@@ -1,5 +1,4 @@
 #pragma once
-
 #include "ray.h"
 
 struct hitRecord
@@ -12,5 +11,5 @@ struct hitRecord
 class hittable
 {
 public:
-	virtual bool hit(const ray& r, float t_min, float t_max, hitRecord& record) const = 0;
+	virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& record) const = 0;
 };
