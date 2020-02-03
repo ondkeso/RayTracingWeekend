@@ -2,6 +2,8 @@
 #include "ray.h"
 #include "hittableList.h"
 #include "sphere.h"
+#include "camera.h"
+#include "random.h"
 
 #include <limits>
 #include <fstream>
@@ -25,15 +27,13 @@ int main()
 {
 	constexpr int nx = 400;
 	constexpr int ny = 200;
-	constexpr float3 lower_left_corner(-2.0f, -1.0f, 1.0f);
-	constexpr float3 horizontal(4.0f, 0.0f, 0.0f);
-	constexpr float3 vertical(0.0f, 2.0f, 0.0f);
-	constexpr float3 origin(0.0f, 0.0f, 0.0f);
+	constexpr int samplesPerPixel = 60;
 
 	hittable* list[2];
 	list[0] = new sphere(float3{ 0.0f, 0.0f, 1.0f }, 0.5f);
 	list[1] = new sphere(float3{ 0.0f, -100.5f, 1.0f }, 100.0f);
 	hittable* world = new hittableList{ list, 2 };
+	camera cam(float3{ -2.0f, -1.0f, 1.0f },  float3{4.0f, 0.0f, 0.0f} , float3{0.0f, 2.0f, 0.0f}, float3{0.0f, 0.0f, 0.0f});
 
 	std::ofstream cout("output.ppm");
 	cout << "P3\n" << nx << " " << ny << "\n255\n";
@@ -42,12 +42,17 @@ int main()
 	{
 		for (int i = 0; i < nx; i++)
 		{
-			float u = (float)i / (float)nx;
-			float v = (float)j / (float)ny;
+			float3 color{0.0f, 0.0f, 0.0f};
 
-			ray r(origin, lower_left_corner + u * horizontal + v * vertical);
+			for (int s = 0; s < samplesPerPixel; ++s)
+			{
+				const float u = (i + random01()) / float{ nx };
+				const float v = (j + random01()) / float{ ny };
 
-			float3 color = colorOfRay(r, world);
+				ray r = cam.spawnRay(u, v);
+				color += colorOfRay(r, world);
+			}
+			color /= float{ samplesPerPixel };
 
 			int ir = int(255.9999f * color.r);
 			int ig = int(255.9999f * color.g);
