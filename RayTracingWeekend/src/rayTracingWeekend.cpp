@@ -13,7 +13,8 @@ float3 colorOfRay(const ray& r, hittable* world)
 	hitRecord record;
 	if (world->hit(r, 0.0f, std::numeric_limits<float>::max(), record))
 	{
-		return 0.5f * float3{ record.normal.x + 1.0f, record.normal.y + 1.0f, record.normal.z + 1.0f };
+		float3 target = record.position + record.normal + randomInUnitSphere();
+		return 0.5f * colorOfRay(ray(record.position, target - record.position), world);
 	}
 	else
 	{
@@ -53,6 +54,9 @@ int main()
 				color += colorOfRay(r, world);
 			}
 			color /= float{ samplesPerPixel };
+
+			//Gamma correct
+			color = float3{ sqrt(color.r), sqrt(color.g), sqrt(color.b) };
 
 			int ir = int(255.9999f * color.r);
 			int ig = int(255.9999f * color.g);
