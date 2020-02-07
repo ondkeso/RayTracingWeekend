@@ -37,15 +37,16 @@ int main()
 {
 	constexpr int nx = 500;
 	constexpr int ny = 250;
-	constexpr int samplesPerPixel = 50;
+	constexpr int samplesPerPixel = 40;
 
-	hittable* list[4];
-	list[0] = new sphere{ float3{0.0f, 0.0f, 1.0f}, 0.5f, new lambertian{float3{0.8f, 0.3f, 0.3f }} };
-	list[1] = new sphere{ float3{0.0f, -100.5f, 1.0f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} };
-	list[2] = new sphere{ float3{1.0f, 0.0f, 1.0f}, 0.5f, new metal{float3{0.8f, 0.6f, 0.2f }} };
-	list[3] = new sphere{ float3{-1.0f, 0.0f, 1.0f}, 0.5f, new metal{float3{0.8f, 0.8f, 0.8f }} };
+	hittable* list[5];
+	list[0] = new sphere{ float3{0.0f, 0.0f, 1.2f}, 0.5f, new lambertian{float3{0.8f, 0.3f, 0.3f }} };
+	list[1] = new sphere{ float3{0.0f, -100.5f, 1.2f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} };
+	list[2] = new sphere{ float3{1.0f, 0.0f, 1.2f}, 0.5f, new metal{float3{0.8f, 0.6f, 0.2f }, 0.4f} };
+	list[3] = new sphere{ float3{-1.0f, 0.0f, 1.2f}, 0.5f, new dielectric{0.6f} };
+	list[4] = new sphere{ float3{0.5f, 0.0f, 1.05f}, 0.5f, new dielectric{1.3f} };
 
-	hittable* world = new hittableList{ list, 4 };
+	hittable* world = new hittableList{ list, 5 };
 	camera cam(float3{ -2.0f, -1.0f, 1.0f },  float3{4.0f, 0.0f, 0.0f} , float3{0.0f, 2.0f, 0.0f}, float3::zero);
 
 	std::ofstream cout("output.ppm");
