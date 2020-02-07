@@ -47,3 +47,6 @@ Release/
 
 # Image Files
 *.ppm
+
+#VTune
+VTune Amplifier Results/

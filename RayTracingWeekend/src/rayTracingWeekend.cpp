@@ -4,37 +4,49 @@
 #include "sphere.h"
 #include "camera.h"
 #include "random.h"
+#include "material.h"
 
 #include <limits>
 #include <fstream>
 
-float3 colorOfRay(const ray& r, hittable* world)
+float3 colorOfRay(const ray& r, hittable* world, int currentRecursion = 0)
 {
 	hitRecord record;
-	if (world->hit(r, 0.0f, std::numeric_limits<float>::max(), record))
+	if (world->hit(r, 0.0001f, std::numeric_limits<float>::max(), record))
 	{
-		float3 target = record.position + record.normal + randomInUnitSphere();
-		return 0.5f * colorOfRay(ray(record.position, target - record.position), world);
+		ray scattered;
+		float3 attenuation;
+		if (currentRecursion < 50 && record.material->scatter(r, record, attenuation, scattered))
+		{
+			return attenuation * colorOfRay(scattered, world, currentRecursion + 1);
+		}
+		else
+		{
+			return float3::zero;
+		}
 	}
 	else
 	{
-		float3 unit_direction = unitVector(r.direction);
-		float t = 0.5f * (unit_direction.y + 1.0f);
-		return lerp(float3{ 1.0f, 1.0f, 1.0f }, float3{ 0.5f, 0.7f, 1.0f }, t);
+		float3 unitDirection = unitVector(r.direction);
+		float t = 0.5f * (unitDirection.y + 1.0f);
+		return lerp(float3::identity, float3{ 0.5f, 0.7f, 1.0f }, t);
 	}
 }
 
 int main()
 {
-	constexpr int nx = 400;
-	constexpr int ny = 200;
-	constexpr int samplesPerPixel = 60;
+	constexpr int nx = 500;
+	constexpr int ny = 250;
+	constexpr int samplesPerPixel = 50;
 
-	hittable* list[2];
-	list[0] = new sphere(float3{ 0.0f, 0.0f, 1.0f }, 0.5f);
-	list[1] = new sphere(float3{ 0.0f, -100.5f, 1.0f }, 100.0f);
-	hittable* world = new hittableList{ list, 2 };
-	camera cam(float3{ -2.0f, -1.0f, 1.0f },  float3{4.0f, 0.0f, 0.0f} , float3{0.0f, 2.0f, 0.0f}, float3{0.0f, 0.0f, 0.0f});
+	hittable* list[4];
+	list[0] = new sphere{ float3{0.0f, 0.0f, 1.0f}, 0.5f, new lambertian{float3{0.8f, 0.3f, 0.3f }} };
+	list[1] = new sphere{ float3{0.0f, -100.5f, 1.0f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} };
+	list[2] = new sphere{ float3{1.0f, 0.0f, 1.0f}, 0.5f, new metal{float3{0.8f, 0.6f, 0.2f }} };
+	list[3] = new sphere{ float3{-1.0f, 0.0f, 1.0f}, 0.5f, new metal{float3{0.8f, 0.8f, 0.8f }} };
+
+	hittable* world = new hittableList{ list, 4 };
+	camera cam(float3{ -2.0f, -1.0f, 1.0f },  float3{4.0f, 0.0f, 0.0f} , float3{0.0f, 2.0f, 0.0f}, float3::zero);
 
 	std::ofstream cout("output.ppm");
 	cout << "P3\n" << nx << " " << ny << "\n255\n";

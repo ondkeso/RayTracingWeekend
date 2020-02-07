@@ -14,6 +14,9 @@ public:
 	, z(e2)
 	{}
 
+	static const float3 zero;
+	static const float3 identity;
+
 	inline const float3& operator+() const { return *this; }
 	inline float3 operator-() const { return float3{ -e[0], -e[1], -e[2] }; }
 	inline float operator[](int i) const { return e[i]; }
@@ -40,6 +43,9 @@ public:
 	};
 };
 #pragma warning(pop)
+
+const float3 float3::zero{ 0.0f, 0.0f, 0.0f };
+const float3 float3::identity{ 1.0f, 1.0f, 1.0f };
 
 #pragma region operators
 inline float3& float3::operator+=(const float3& v)
@@ -181,4 +187,9 @@ inline float3 cross(const float3& a, const float3& b)
 inline float3 lerp(const float3& a, const float3& b, float t)
 {
 	return (1.0f - t) * a + t * b;
+}
+
+inline float3 reflect(const float3& v, const float3& n)
+{
+	return v - 2.0f * dot(v, n) * n;
 }
