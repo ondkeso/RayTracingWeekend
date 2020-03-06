@@ -29,7 +29,7 @@ bool sphere::hit(const ray& r, float tMin, float tMax, hitRecord& record) const
 	
 	if (discriminant > 0.0f)
 	{
-		float temp = (-b - sqrt(discriminant)) / a;
+		float temp = (-b - sqrtf(discriminant)) / a;
 		if (temp < tMax && temp > tMin)
 		{
 			record.t = temp;
@@ -39,7 +39,7 @@ bool sphere::hit(const ray& r, float tMin, float tMax, hitRecord& record) const
 			return true;
 		}
 
-		temp = (-b + sqrt(discriminant)) / a;
+		temp = (-b + sqrtf(discriminant)) / a;
 		if (temp < tMax && temp > tMin)
 		{
 			record.t = temp;

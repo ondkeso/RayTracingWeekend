@@ -151,7 +151,7 @@ inline float3 operator/(const float3& v, float f)
 
 inline float float3::length() const
 {
-	return sqrt(squaredLength());
+	return sqrtf(squaredLength());
 }	
 
 inline float float3::squaredLength() const
