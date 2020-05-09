@@ -22,14 +22,15 @@ public:
 bool sphere::hit(const ray& r, float tMin, float tMax, hitRecord& record) const
 {
 	const float3 centerToRayOrigin = r.origin - center;
-	const float a = dot(r.direction, r.direction);
-	const float b = dot(centerToRayOrigin, r.direction);
-	const float c = dot(centerToRayOrigin, centerToRayOrigin) - radius * radius;
-	const float discriminant = b*b - a*c;
+	const float a = r.direction.squaredLength();
+	const float halfB = dot(centerToRayOrigin, r.direction);
+	const float c = centerToRayOrigin.squaredLength() - radius * radius;
+	const float discriminant = halfB * halfB - a*c;
 	
 	if (discriminant > 0.0f)
 	{
-		float temp = (-b - sqrtf(discriminant)) / a;
+		const float root = sqrtf(discriminant);
+		float temp = (-halfB - root) / a;
 		if (temp < tMax && temp > tMin)
 		{
 			record.t = temp;
@@ -39,7 +40,7 @@ bool sphere::hit(const ray& r, float tMin, float tMax, hitRecord& record) const
 			return true;
 		}
 
-		temp = (-b + sqrtf(discriminant)) / a;
+		temp = (-halfB + root) / a;
 		if (temp < tMax && temp > tMin)
 		{
 			record.t = temp;
