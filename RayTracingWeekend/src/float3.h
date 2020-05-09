@@ -14,8 +14,8 @@ public:
 	, z(e2)
 	{}
 
-	static const float3 zero;
-	static const float3 identity;
+	static constexpr float3 zero() { return float3{ 0.0f, 0.0f, 0.0f }; }
+	static constexpr float3 identity() { return float3{ 1.0f, 1.0f, 1.0f }; }
 
 	inline const float3& operator+() const { return *this; }
 	inline float3 operator-() const { return float3{ -e[0], -e[1], -e[2] }; }
@@ -44,8 +44,6 @@ public:
 };
 #pragma warning(pop)
 
-const float3 float3::zero{ 0.0f, 0.0f, 0.0f };
-const float3 float3::identity{ 1.0f, 1.0f, 1.0f };
 
 #pragma region operators
 inline float3& float3::operator+=(const float3& v)
@@ -189,7 +187,12 @@ inline float3 lerp(const float3& a, const float3& b, float t)
 	return (1.0f - t) * a + t * b;
 }
 
+inline float3 reflect(const float3& v, const float3& n, float vDotN)
+{
+	return v - (2.0f * vDotN) * n;
+}
+
 inline float3 reflect(const float3& v, const float3& n)
 {
-	return v - 2.0f * dot(v, n) * n;
+	return reflect(v, n, dot(v, n));
 }
