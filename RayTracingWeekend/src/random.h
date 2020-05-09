@@ -32,7 +32,7 @@ inline float3 randomOnUnitSphere()
 	const float a = random(0.0f, PI2);
 	const float z = random(-1.0f, 1.0f);
 	const float r = sqrtf(1.0f - z * z);
-	return float3{ r*cos(a), r*sin(a), z };
+	return float3{ r*cosf(a), r*sinf(a), z };
 }
 
 inline float3 randomOnUnitSphere2()
