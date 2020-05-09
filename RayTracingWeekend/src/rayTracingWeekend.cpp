@@ -15,11 +15,11 @@ float3 colorOfRay(const ray& r, const hittable& hittable, int currentRecursion =
 	hitRecord record;
 	if (hittable.hit(r, 0.001f, std::numeric_limits<float>::max(), record))
 	{
-		ray scattered;
+		ray transmitted;
 		float3 attenuation;
-		if (currentRecursion < 20 && record.material->transmit(r, record, attenuation, scattered))
+		if (currentRecursion < 20 && record.material->transmit(r, record, &attenuation, &transmitted))
 		{
-			return attenuation * colorOfRay(scattered, hittable, currentRecursion + 1);
+			return attenuation * colorOfRay(transmitted, hittable, currentRecursion + 1);
 		}
 		else
 		{
