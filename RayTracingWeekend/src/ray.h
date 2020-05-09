@@ -5,7 +5,7 @@ class ray
 {
 public:
 	ray(){}
-	ray(const float3& origin, const float3& direction)
+	constexpr ray(const float3& origin, const float3& direction)
 		: origin(origin)
 		, direction(direction)
 		{}

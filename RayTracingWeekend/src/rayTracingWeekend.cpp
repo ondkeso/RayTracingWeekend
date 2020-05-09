@@ -8,46 +8,56 @@
 
 #include <limits>
 #include <fstream>
+#include <vector>
 
-float3 colorOfRay(const ray& r, hittable* world, int currentRecursion = 0)
+float3 colorOfRay(const ray& r, const hittable& hittable, int currentRecursion = 0)
 {
 	hitRecord record;
-	if (world->hit(r, 0.0001f, std::numeric_limits<float>::max(), record))
+	if (hittable.hit(r, 0.001f, std::numeric_limits<float>::max(), record))
 	{
 		ray scattered;
 		float3 attenuation;
-		if (currentRecursion < 50 && record.material->scatter(r, record, attenuation, scattered))
+		if (currentRecursion < 20 && record.material->transmit(r, record, attenuation, scattered))
 		{
-			return attenuation * colorOfRay(scattered, world, currentRecursion + 1);
+			return attenuation * colorOfRay(scattered, hittable, currentRecursion + 1);
 		}
 		else
 		{
-			return float3::zero;
+			return float3::zero();
 		}
 	}
 	else
 	{
 		float3 unitDirection = unitVector(r.direction);
 		float t = 0.5f * (unitDirection.y + 1.0f);
-		return lerp(float3::identity, float3{ 0.5f, 0.7f, 1.0f }, t);
+		return lerp(float3::identity(), float3{ 0.5f, 0.7f, 1.0f }, t);
 	}
 }
 
 int main()
 {
-	constexpr int nx = 500;
-	constexpr int ny = 250;
-	constexpr int samplesPerPixel = 40;
+	constexpr float qualityFactor = 1.0f;
+	constexpr int nx = (int) (500 * qualityFactor);
+	constexpr int ny = (int) (250 * qualityFactor);
+	constexpr int samplesPerPixel = (int) (20 * qualityFactor);
 
-	hittable* list[5];
-	list[0] = new sphere{ float3{0.0f, 0.0f, 1.2f}, 0.5f, new lambertian{float3{0.8f, 0.3f, 0.3f }} };
-	list[1] = new sphere{ float3{0.0f, -100.5f, 1.2f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} };
-	list[2] = new sphere{ float3{1.0f, 0.0f, 1.2f}, 0.5f, new metal{float3{0.8f, 0.6f, 0.2f }, 0.4f} };
-	list[3] = new sphere{ float3{-1.0f, 0.0f, 1.2f}, 0.5f, new dielectric{0.6f} };
-	list[4] = new sphere{ float3{0.5f, 0.0f, 1.05f}, 0.5f, new dielectric{1.3f} };
+	std::vector<hittable*> sphereScene;
+	//hittables.emplace_back(sphere{ float3{0.0f, 0.0f, 1.7f}, 0.5f, new lambertian{float3{0.1f, 0.2f, 0.5f }} });
+	//hittables.emplace_back(sphere{ float3{0.0f, -100.5f, 1.7f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} });
+	//hittables.emplace_back(sphere{ float3{1.0f, 0.0f, 1.7f}, 0.5f, new metal{float3{0.8f, 0.6f, 0.2f }, 0.0f} });
+	//hittables.emplace_back(sphere{ float3{-1.0f, 0.0f, 1.2f}, 0.5f, new dielectric{1.3f} });
+	//hittables.emplace_back(sphere{ float3{1.2f, 0.0f, 1.2f}, 0.5f, new dielectric{0.7f} });
 
-	hittable* world = new hittableList{ list, 5 };
-	camera cam(float3{ -2.0f, -1.0f, 1.0f },  float3{4.0f, 0.0f, 0.0f} , float3{0.0f, 2.0f, 0.0f}, float3::zero);
+	float x = -4.5f;
+	for (int i = 0; i < 10; ++i)
+	{
+		sphereScene.emplace_back(new sphere{ float3{x++, 0.9f, -2.2f}, 0.5f, new lambertian{float3{0.01f, 0.01f, 0.01f }} });
+	}
+	sphereScene.emplace_back(new sphere{ float3{0.0f, -100.9f, 1.0f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} });
+	sphereScene.emplace_back(new sphere{ float3{0.0f, 0.0f, 1.0f}, 0.5f, new dielectric{1.5f} });
+
+	const hittableList world{ sphereScene };
+	constexpr camera cam(float3{ -2.0f, -1.0f, 1.0f },  float3{4.0f, 0.0f, 0.0f} , float3{0.0f, 2.0f, 0.0f}, float3::zero());
 
 	std::ofstream cout("output.ppm");
 	cout << "P3\n" << nx << " " << ny << "\n255\n";
@@ -63,7 +73,7 @@ int main()
 				const float u = (i + random01()) / float{ nx };
 				const float v = (j + random01()) / float{ ny };
 
-				ray r = cam.spawnRay(u, v);
+				const ray r = cam.spawnRay(u, v);
 				color += colorOfRay(r, world);
 			}
 			color /= float{ samplesPerPixel };
@@ -78,6 +88,7 @@ int main()
 			cout << ir << " " << ig << " " << ib << "\n";
 		}
 	}
+
 	cout.close();
 
 	system(R"("C:\Program Files\IrfanView\i_view64.exe" .\output.ppm /pos=(400,300))");

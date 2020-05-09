@@ -1,18 +1,17 @@
 #pragma once
 #include "hittable.h"
+#include <vector>
 
 class hittableList : public hittable
 {
 public:
 	hittableList() {}
-	hittableList(hittable** list, size_t numHittables)
-		: list{ list }
-		, numHittables{ numHittables } {}
+	hittableList(std::vector<hittable*> hittables)
+		: hittables{ hittables } {}
 
 	virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& record) const override;
 
-	hittable** list;
-	size_t numHittables;
+	std::vector<hittable*> hittables;
 };
 
 bool hittableList::hit(const ray& r, float tMin, float tMax, hitRecord& record) const
@@ -21,9 +20,9 @@ bool hittableList::hit(const ray& r, float tMin, float tMax, hitRecord& record) 
 	closestHitRecord.t = tMax;
 	bool hitAnything = false;
 
-	for (size_t i = 0; i < numHittables; ++i)
+	for (const hittable* item : hittables)
 	{
-		if (list[i]->hit(r, tMin, closestHitRecord.t, closestHitRecord))
+		if (item->hit(r, tMin, closestHitRecord.t, closestHitRecord))
 		{
 			hitAnything = true;
 		}
