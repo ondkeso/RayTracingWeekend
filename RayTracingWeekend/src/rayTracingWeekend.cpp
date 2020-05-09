@@ -69,7 +69,7 @@ int main()
 			color /= float{ samplesPerPixel };
 
 			//Gamma correct
-			color = float3{ sqrt(color.r), sqrt(color.g), sqrt(color.b) };
+			color = float3{ sqrtf(color.r), sqrtf(color.g), sqrtf(color.b) };
 
 			int ir = int(255.9999f * color.r);
 			int ig = int(255.9999f * color.g);
