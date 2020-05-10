@@ -16,6 +16,9 @@ public:
 
 	static constexpr float3 zero() { return float3{ 0.0f, 0.0f, 0.0f }; }
 	static constexpr float3 identity() { return float3{ 1.0f, 1.0f, 1.0f }; }
+	static constexpr float3 red() { return float3{ 1.0f, 0.0f, 0.0f }; }
+	static constexpr float3 green() { return float3{ 0.0f, 1.0f, 0.0f }; }
+	static constexpr float3 blue() { return float3{ 0.0f, 0.0f, 1.0f }; }
 
 	inline const float3& operator+() const { return *this; }
 	inline float3 operator-() const { return float3{ -e[0], -e[1], -e[2] }; }
