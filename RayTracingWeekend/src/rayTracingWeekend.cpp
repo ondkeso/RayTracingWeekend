@@ -10,16 +10,16 @@
 #include <fstream>
 #include <vector>
 
-float3 colorOfRay(const ray& r, const hittable& hittable, int currentRecursion = 0)
+float3 colorOfRay(const ray& r, const hittable& hittable, int recursionsLeft)
 {
 	hitRecord record;
 	if (hittable.hit(r, 0.001f, std::numeric_limits<float>::max(), record))
 	{
 		ray transmitted;
 		float3 attenuation;
-		if (currentRecursion < 20 && record.material->transmit(r, record, &attenuation, &transmitted))
+		if (recursionsLeft-- > 0 && record.material->transmit(r, record, &attenuation, &transmitted))
 		{
-			return attenuation * colorOfRay(transmitted, hittable, currentRecursion + 1);
+			return attenuation * colorOfRay(transmitted, hittable, recursionsLeft);
 		}
 		else
 		{
@@ -36,45 +36,55 @@ float3 colorOfRay(const ray& r, const hittable& hittable, int currentRecursion =
 
 int main()
 {
-	constexpr float qualityFactor = 1.0f;
-	constexpr int nx = (int) (500 * qualityFactor);
-	constexpr int ny = (int) (250 * qualityFactor);
-	constexpr int samplesPerPixel = (int) (20 * qualityFactor);
+	constexpr float sizeFactor = 1.3f;
+	constexpr int maxRecursion = 20;
+	constexpr float aspectRatio = 16.0f / 9.0f;
+	constexpr int imageHeight = (int)(360 * sizeFactor);
+	constexpr int imageWidth = (int)(imageHeight * aspectRatio);
+	constexpr int samplesPerPixel = 15;
 
 	std::vector<hittable*> sphereScene;
-	//hittables.emplace_back(sphere{ float3{0.0f, 0.0f, 1.7f}, 0.5f, new lambertian{float3{0.1f, 0.2f, 0.5f }} });
-	//hittables.emplace_back(sphere{ float3{0.0f, -100.5f, 1.7f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} });
-	//hittables.emplace_back(sphere{ float3{1.0f, 0.0f, 1.7f}, 0.5f, new metal{float3{0.8f, 0.6f, 0.2f }, 0.0f} });
-	//hittables.emplace_back(sphere{ float3{-1.0f, 0.0f, 1.2f}, 0.5f, new dielectric{1.3f} });
-	//hittables.emplace_back(sphere{ float3{1.2f, 0.0f, 1.2f}, 0.5f, new dielectric{0.7f} });
+	//sphereScene.emplace_back(sphere{ float3{0.0f, -100.5f, 1.7f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} });
+	//sphereScene.emplace_back(sphere{ float3{0.0f, 0.0f, 1.7f}, 0.5f, new lambertian{float3{0.1f, 0.0f, 0.5f }} });
+	//sphereScene.emplace_back(sphere{ float3{-1.0f, 0.0f, 1.2f}, 0.5f, new dielectric{1.3f} });
+	//sphereScene.emplace_back(sphere{ float3{1.2f, 0.0f, 1.2f}, 0.5f, new dielectric{0.7f} });
 
-	float x = -4.5f;
-	for (int i = 0; i < 10; ++i)
-	{
-		sphereScene.emplace_back(new sphere{ float3{x++, 0.9f, -2.2f}, 0.5f, new lambertian{float3{0.01f, 0.01f, 0.01f }} });
-	}
-	sphereScene.emplace_back(new sphere{ float3{0.0f, -100.9f, 1.0f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} });
-	sphereScene.emplace_back(new sphere{ float3{0.0f, 0.0f, 1.0f}, 0.5f, new dielectric{1.5f} });
+	//float x = -4.5f;
+	//for (int i = 0; i < 10; ++i)
+	//{
+	//	sphereScene.emplace_back(new sphere{ float3{x++, 0.9f, -2.2f}, 0.5f, new lambertian{float3{0.01f, 0.01f, 0.01f }} });
+	//}
+	//sphereScene.emplace_back(new sphere{ float3{0.0f, -100.5f, 1.0f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} });
+	//
+	//sphereScene.emplace_back(new sphere{ float3{-1.6f, 0.0f, 1.7f}, 0.5f, new lambertian{float3{0.1f, 0.0f, 0.5f }} });
+	//sphereScene.emplace_back(new sphere{ float3{-0.5001f, 0.0f, 1.7f}, -0.5f, new dielectric{1.5f} });
+	//sphereScene.emplace_back(new sphere{ float3{0.5001f, 0.0f, 1.7f}, 0.5f, new metal{float3{0.8f, 0.6f, 0.2f }, 0.1f} });
+	//sphereScene.emplace_back(new sphere{ float3{1.6f, 0.0f, 1.7f}, 0.5f, new dielectric{1.5f} });
+
+	const float r = 0.5f;
+	const float d = 1.0f;
+	sphereScene.push_back(new sphere{ float3{0.0f, 0.0f, d}, r, new lambertian{float3::blue()} });
 
 	const hittableList world{ sphereScene };
-	constexpr camera cam(float3{ -2.0f, -1.0f, 1.0f },  float3{4.0f, 0.0f, 0.0f} , float3{0.0f, 2.0f, 0.0f}, float3::zero());
+	const float fovToTangentSphere = 2.0f * asinf(r / d) * RAD_TO_DEG;
+	const camera cam(fovToTangentSphere, aspectRatio);
 
 	std::ofstream cout("output.ppm");
-	cout << "P3\n" << nx << " " << ny << "\n255\n";
+	cout << "P3\n" << imageWidth << " " << imageHeight << "\n255\n";
 
-	for (int j = ny - 1; j >= 0; j--)
+	for (int j = imageHeight - 1; j >= 0; j--)
 	{
-		for (int i = 0; i < nx; i++)
+		for (int i = 0; i < imageWidth; i++)
 		{
 			float3 color{0.0f, 0.0f, 0.0f};
 
 			for (int s = 0; s < samplesPerPixel; ++s)
 			{
-				const float u = (i + random01()) / float{ nx };
-				const float v = (j + random01()) / float{ ny };
+				const float u = (i + random01()) / float{ imageWidth };
+				const float v = (j + random01()) / float{ imageHeight };
 
 				const ray r = cam.spawnRay(u, v);
-				color += colorOfRay(r, world);
+				color += colorOfRay(r, world, maxRecursion);
 			}
 			color /= float{ samplesPerPixel };
 
