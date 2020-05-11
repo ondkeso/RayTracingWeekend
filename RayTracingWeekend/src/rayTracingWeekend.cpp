@@ -54,20 +54,21 @@ int main()
 	//{
 	//	sphereScene.emplace_back(new sphere{ float3{x++, 0.9f, -2.2f}, 0.5f, new lambertian{float3{0.01f, 0.01f, 0.01f }} });
 	//}
-	//sphereScene.emplace_back(new sphere{ float3{0.0f, -100.5f, 1.0f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} });
-	//
-	//sphereScene.emplace_back(new sphere{ float3{-1.6f, 0.0f, 1.7f}, 0.5f, new lambertian{float3{0.1f, 0.0f, 0.5f }} });
-	//sphereScene.emplace_back(new sphere{ float3{-0.5001f, 0.0f, 1.7f}, -0.5f, new dielectric{1.5f} });
-	//sphereScene.emplace_back(new sphere{ float3{0.5001f, 0.0f, 1.7f}, 0.5f, new metal{float3{0.8f, 0.6f, 0.2f }, 0.1f} });
-	//sphereScene.emplace_back(new sphere{ float3{1.6f, 0.0f, 1.7f}, 0.5f, new dielectric{1.5f} });
+	sphereScene.emplace_back(new sphere{ float3{0.0f, -100.5f, 1.0f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} });
 
-	const float r = 0.5f;
-	const float d = 1.0f;
-	sphereScene.push_back(new sphere{ float3{0.0f, 0.0f, d}, r, new lambertian{float3::blue()} });
+	sphereScene.emplace_back(new sphere{ float3{-1.5002f, 0.0f, 1.7f}, 0.5f, new lambertian{float3{0.1f, 0.0f, 0.5f }} });
+	sphereScene.emplace_back(new sphere{ float3{-0.5001f, 0.0f, 1.7f}, 0.5f, new dielectric{1.5f} });
+	sphereScene.emplace_back(new sphere{ float3{0.5001f, 0.0f, 1.7f}, 0.5f, new metal{float3{0.8f, 0.6f, 0.2f }, 0.1f} });
+	sphereScene.emplace_back(new sphere{ float3{1.5002f, 0.0f, 1.7f}, -0.5f, new dielectric{1.5f} });
+
+	//const float r = 0.5f;
+	//const float d = 1.0f;
+	//sphereScene.push_back(new sphere{ float3{0.0f, 0.0f, d}, r, new lambertian{float3::blue()} });
+	//const float fovToTangentSphere = 2.0f * asinf(r / d) * RAD_TO_DEG;
 
 	const hittableList world{ sphereScene };
-	const float fovToTangentSphere = 2.0f * asinf(r / d) * RAD_TO_DEG;
-	const camera cam(fovToTangentSphere, aspectRatio);
+	constexpr float3 viewUp{ 0.0f, 1.0f, 0.0f };
+	const camera cam(float3{ -2.0f, 2.0f, -0.5f}, float3{ 0.0f, 0.0f, 1.7f}, viewUp, 45.0f, aspectRatio);
 
 	std::ofstream cout("output.ppm");
 	cout << "P3\n" << imageWidth << " " << imageHeight << "\n255\n";
