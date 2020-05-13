@@ -36,12 +36,21 @@ float3 colorOfRay(const ray& r, const hittable& hittable, int recursionsLeft)
 
 int main()
 {
+	// Quality settings
 	constexpr float sizeFactor = 1.3f;
 	constexpr int maxRecursion = 20;
 	constexpr float aspectRatio = 16.0f / 9.0f;
 	constexpr int imageHeight = (int)(360 * sizeFactor);
 	constexpr int imageWidth = (int)(imageHeight * aspectRatio);
 	constexpr int samplesPerPixel = 15;
+
+	// Camera settings
+	constexpr float3 viewUp{ 0.0f, 1.0f, 0.0f };
+	constexpr float3 origin{ -2.0f, 2.0f, -0.5f };
+	constexpr float3 lookAt{ 0.0f, 0.0f, 1.7f };
+	constexpr float fov = 45.0f;
+	constexpr float aperatureRadius = 0.2f;
+	const float focusDistance = (origin - lookAt).length();
 
 	std::vector<hittable*> sphereScene;
 	//sphereScene.emplace_back(sphere{ float3{0.0f, -100.5f, 1.7f}, 100, new lambertian{float3{0.8f, 0.8f, 0.0f }} });
@@ -67,8 +76,7 @@ int main()
 	//const float fovToTangentSphere = 2.0f * asinf(r / d) * RAD_TO_DEG;
 
 	const hittableList world{ sphereScene };
-	constexpr float3 viewUp{ 0.0f, 1.0f, 0.0f };
-	const camera cam(float3{ -2.0f, 2.0f, -0.5f}, float3{ 0.0f, 0.0f, 1.7f}, viewUp, 45.0f, aspectRatio);
+	const camera cam(origin, lookAt, viewUp, fov, aspectRatio, aperatureRadius, focusDistance);
 
 	std::ofstream cout("output.ppm");
 	cout << "P3\n" << imageWidth << " " << imageHeight << "\n255\n";

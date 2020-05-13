@@ -26,6 +26,16 @@ inline float random(float min, float max)
 	return random01() * (max - min) + min;
 }
 
+inline float3 randomInUnitDisk()
+{
+	while (true)
+	{
+		const float3 p{random01(), random01(), 0.0f};
+		if (p.squaredLength() < 1.0f)
+			return p;
+	}
+}
+
 //Unit sphere picking reference https://mathworld.wolfram.com/SpherePointPicking.html
 inline float3 randomOnUnitSphere()
 {

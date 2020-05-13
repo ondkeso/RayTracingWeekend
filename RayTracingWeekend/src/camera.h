@@ -1,32 +1,43 @@
 #pragma once
 #include "ray.h"
 #include "mathConstants.h"
+#include "random.h"
 
 class camera
 {
 public:
-	camera(float3 lookFrom, float3 lookAt, float3 viewUp, float verticalFovDegrees, float aspectRatio)
+	camera(float3 lookFrom, float3 lookAt, float3 viewUp, float verticalFovDegrees, float aspectRatio
+		, float aperatureRadius, float focusDistance)
+		: origin{ lookFrom }
+		, w{ unitVector(lookFrom - lookAt) }
+		, u{ unitVector(cross(viewUp, w)) }
+		, v{ cross(w, u) }
+		, lensRadius{ aperatureRadius }
 	{
 		const float vFovRad = verticalFovDegrees * DEG_TO_RAD;
 		const float halfHeight = tanf(vFovRad * 0.5f);
 		const float halfWidth = aspectRatio * halfHeight;
-		const float3 w = unitVector(lookFrom - lookAt);
-		const float3 u = unitVector(cross(viewUp, w));
-		const float3 v = cross(w, u);
 
-		origin = lookFrom;
-		lowerLeftCorner = origin - halfWidth * u - halfHeight * v - w;
-		horizontal = 2.0f * halfWidth * u;
-		vertical = 2.0f * halfHeight * v;
+		lowerLeftCorner = origin
+			- halfWidth * focusDistance * u
+			- halfHeight * focusDistance * v
+			- focusDistance * w;
+		horizontal = 2.0f * halfWidth * focusDistance * u;
+		vertical = 2.0f * halfHeight * focusDistance * v;
 	}
 
-	constexpr ray spawnRay(float u, float v) const
+	ray spawnRay(float u, float v) const
 	{
-		return ray{ origin, lowerLeftCorner + u * horizontal + v * vertical - origin };
+		const float3 randomPointOnLens{ lensRadius * randomInUnitDisk() };
+		const float3 offset = this->u * randomPointOnLens.x + this->v * randomPointOnLens.y;
+		return ray{ origin + offset
+			, lowerLeftCorner + u * horizontal + v * vertical - origin - offset};
 	}
 
 private:
 	float3 origin;
+	float3 w, u, v;
+	float lensRadius;
 	float3 lowerLeftCorner;
 	float3 horizontal;
 	float3 vertical;
