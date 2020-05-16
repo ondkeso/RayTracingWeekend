@@ -28,8 +28,8 @@ public:
 
 	ray spawnRay(float u, float v) const
 	{
-		const float3 randomPointOnLens{ lensRadius * randomInUnitDisk() };
-		const float3 offset = this->u * randomPointOnLens.x + this->v * randomPointOnLens.y;
+		auto [du, dv] = randomInUnitDisk();
+		const float3 offset = this->u * du * lensRadius + this->v * dv * lensRadius;
 		return ray{ origin + offset
 			, lowerLeftCorner + u * horizontal + v * vertical - origin - offset};
 	}

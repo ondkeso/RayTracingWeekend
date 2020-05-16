@@ -3,6 +3,7 @@
 #include "mathConstants.h"
 #include <inttypes.h>
 #include <limits>
+#include <tuple>
 
 inline uint32_t xor128()
 {
@@ -26,13 +27,15 @@ inline float random(float min, float max)
 	return random01() * (max - min) + min;
 }
 
-inline float3 randomInUnitDisk()
+inline std::tuple<float, float> randomInUnitDisk()
 {
 	while (true)
 	{
-		const float3 p{random01(), random01(), 0.0f};
-		if (p.squaredLength() < 1.0f)
-			return p;
+		const float e0 = random01();
+		const float e1 = random01();
+
+		if (e0 * e0 + e1 * e1 < 1.0f)
+			return {e0, e1};
 	}
 }
 
